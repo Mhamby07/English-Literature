@@ -7,7 +7,7 @@ import os
 st.set_page_config(page_title="Literary Character Chat", page_icon="📚", layout="wide")
 genai.configure(api_key=st.secrets["API_KEY"])
 
-# --- 2. THE MASTER BOOK DATABASE (NOW WITH 12TH GRADE FEATURES) ---
+# --- 2. THE MASTER BOOK DATABASE ---
 BOOKS = {
     "Where the Crawdads Sing": {
         "characters": {
@@ -117,16 +117,21 @@ BOOKS = {
                 "starters": ["Why did you want to help the man struck by lightning?", "What does 'carrying the fire' mean to you?"],
                 "triggers": {"good guys": "Seek intense reassurance that you are not like the cannibals.", "flute": "Express a fleeting moment of childhood sadness."}
             }
+        },
+        "locations": {
+            "The Open Road": {
+                "rules": "A gray, ash-covered highway. You are completely exposed.", 
+                "image_file": "road.jpeg", 
+                "audio_file": "bleak_wind.mp3"
+            },
+            "A Scavenged House": {
+                "rules": "An abandoned home. You are constantly on edge.", 
+                "image_file": "house.jpeg", 
+                "audio_file": "creaky_house.mp3"
+            }
         }
     }
 }
-
-# Add default blank locations if missing so the code doesn't crash
-if "locations" not in BOOKS["The Road"]:
-    BOOKS["The Road"]["locations"] = {
-        "The Open Road": {"rules": "A gray, ash-covered highway. You are completely exposed.", "image_file": "road.jpeg", "audio_file": "bleak_wind.mp3"},
-        "A Scavenged House": {"rules": "An abandoned home. You are constantly on edge.", "image_file": "house.jpeg", "audio_file": "creaky_house.mp3"}
-    }
 
 # --- 3. SESSION MANAGEMENT ---
 if "chat_history" not in st.session_state:
@@ -163,7 +168,7 @@ with st.sidebar:
     if loc_image_path and os.path.exists(loc_image_path):
         st.image(loc_image_path, use_column_width=True, caption=f"Current Location: {selected_location}")
         
-    # FEATURE 3: Ambient Audio Player
+    # Ambient Audio Player
     audio_path = book_data["locations"][selected_location].get("audio_file", "")
     if audio_path and os.path.exists(audio_path):
         st.audio(audio_path, format="audio/mp3")
@@ -171,14 +176,14 @@ with st.sidebar:
 
     st.markdown("---")
     
-    # FEATURE 4: Academic Rigor Toggle
+    # Academic Rigor Toggle
     require_evidence = st.toggle("Require Textual Evidence 📖")
     if require_evidence:
         st.success("Rigor Mode: The AI must cite specific memories or quotes.")
 
     st.markdown("---")
     
-    # FEATURE 1: Export Transcript
+    # Export Transcript
     if st.session_state.chat_history:
         transcript = f"Interview Transcript: {selected_name}\nLocation: {selected_location}\nText: {selected_book}\n\n"
         for msg in st.session_state.chat_history:
@@ -217,7 +222,7 @@ CRITICAL INSTRUCTIONS:
 4. Do not acknowledge you are an AI or a character in a book.
 """
 
-# FEATURE 4 INJECTION: Force Textual Evidence
+# Force Textual Evidence Injection
 if require_evidence:
     dynamic_prompt += "\n5. ACADEMIC RIGOR DIRECTIVE: You MUST justify your feelings or answers by explicitly referencing a highly specific memory, object, scene, or exact quote from the text."
 
@@ -238,7 +243,7 @@ if "chat_session" not in st.session_state or st.session_state.chat_session is No
 
 # --- 6. CHAT INTERFACE & LOGIC ---
 
-# FEATURE 2: Socratic Quick Starters
+# Socratic Quick Starters
 if not st.session_state.chat_history:
     st.info("💡 **Not sure what to ask? Try one of these prompts:**")
     col1, col2 = st.columns(2)
@@ -263,7 +268,7 @@ if user_input:
     st.chat_message("user").markdown(user_input)
     st.session_state.chat_history.append({"role": "user", "content": user_input})
     
-    # FEATURE 5 INJECTION: Psychological Triggers
+    # Psychological Triggers Injection
     ai_prompt = user_input
     triggers = book_data["characters"][selected_name].get("triggers", {})
     for keyword, secret_directive in triggers.items():
@@ -275,7 +280,7 @@ if user_input:
         with st.chat_message("assistant"):
             st.markdown(response.text)
         st.session_state.chat_history.append({"role": "assistant", "content": response.text})
-        if st.session_state.pending_starter is None: # Rerun to update the transcript download button
+        if st.session_state.pending_starter is None: 
              st.rerun()
              
     except ResourceExhausted:
