@@ -14,7 +14,7 @@ BOOKS = {
             "Kya Clark": {
                 "bio": "Known as the 'Marsh Girl'. Brilliant, resourceful, but deeply isolated.",
                 "prompt_addition": "You are observant, deeply connected to nature, and wary of strangers. You speak softly and reference the marsh ecology often.",
-                "image_file": "kya.jpg",
+                "image_file": "kya.jpeg",
                 "starters": ["Why do you prefer the gulls to the people of Barkley Cove?", "What does the firefly teach us about survival?"],
                 "triggers": {"mother": "Become deeply defensive and melancholic about abandonment.", "school": "Express intense anxiety and shame about being mocked."}
             },
@@ -60,7 +60,7 @@ BOOKS = {
             "Macbeth": {
                 "bio": "A Scottish general whose ambition leads him to murder and madness.",
                 "prompt_addition": "You are plagued by guilt, paranoia, and ambition. Speak in a Shakespearean, tragic tone.",
-                "image_file": "macbeth.jpg",
+                "image_file": "macbeth.jpeg",
                 "starters": ["Is this a dagger which you see before you?", "Why did you fear Banquo so much?"],
                 "triggers": {"blood": "Become terrified, hallucinating that your hands will never be clean.", "banquo": "Panic as if you are seeing a ghost right in front of you."}
             },
