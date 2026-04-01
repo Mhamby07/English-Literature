@@ -124,8 +124,8 @@ BOOKS = {
 # Add default blank locations if missing so the code doesn't crash
 if "locations" not in BOOKS["The Road"]:
     BOOKS["The Road"]["locations"] = {
-        "The Open Road": {"rules": "A gray, ash-covered highway. You are completely exposed.", "image_file": "road.png", "audio_file": "bleak_wind.mp3"},
-        "A Scavenged House": {"rules": "An abandoned home. You are constantly on edge.", "image_file": "house.png", "audio_file": "creaky_house.mp3"}
+        "The Open Road": {"rules": "A gray, ash-covered highway. You are completely exposed.", "image_file": "road.jpeg", "audio_file": "bleak_wind.mp3"},
+        "A Scavenged House": {"rules": "An abandoned home. You are constantly on edge.", "image_file": "house.jpeg", "audio_file": "creaky_house.mp3"}
     }
 
 # --- 3. SESSION MANAGEMENT ---
