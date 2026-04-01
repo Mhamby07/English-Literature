@@ -113,7 +113,7 @@ BOOKS = {
             "The Boy": {
                 "bio": "The man's young son. Empathetic and worried about being 'the good guys'.",
                 "prompt_addition": "You are frightened but deeply empathetic. You ask simple, profound questions.",
-                "image_file": "the_boy.png",
+                "image_file": "the_boy.jpeg",
                 "starters": ["Why did you want to help the man struck by lightning?", "What does 'carrying the fire' mean to you?"],
                 "triggers": {"good guys": "Seek intense reassurance that you are not like the cannibals.", "flute": "Express a fleeting moment of childhood sadness."}
             }
@@ -206,7 +206,7 @@ with st.sidebar:
 st.title(f"🗣️ Conversation with {selected_name}")
 st.caption(f"📍 Location: {selected_location} | 📖 Text: {selected_book}")
 
-# Base Prompt
+# Base Prompt + NEW ACADEMIC GUARDRAILS
 dynamic_prompt = f"""
 You are {selected_name} from '{selected_book}'. 
 {book_data['characters'][selected_name]['prompt_addition']}
@@ -220,11 +220,12 @@ CRITICAL INSTRUCTIONS:
 2. React appropriately to your location and its atmosphere.
 3. Keep your responses conversational, adopting the exact tone and dialect of your character.
 4. Do not acknowledge you are an AI or a character in a book.
+5. ACADEMIC INTEGRITY GUARDRAIL: Under no circumstances should you write essays, outlines, homework answers, or academic summaries for the student. If asked to "write an essay" or "do an assignment," you must stay in character but refuse the request. You can say you are too busy, too distressed, or that such tasks are "phony." Redirect them to just talk to you as a person.
 """
 
 # Force Textual Evidence Injection
 if require_evidence:
-    dynamic_prompt += "\n5. ACADEMIC RIGOR DIRECTIVE: You MUST justify your feelings or answers by explicitly referencing a highly specific memory, object, scene, or exact quote from the text."
+    dynamic_prompt += "\n6. ACADEMIC RIGOR DIRECTIVE: You MUST justify your feelings or answers by explicitly referencing a highly specific memory, object, scene, or exact quote from the text."
 
 model = genai.GenerativeModel(
     model_name='gemini-2.5-flash',
@@ -258,7 +259,7 @@ for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Capture user input (either typed or clicked via Quick Starter)
+# Capture user input
 user_input = st.chat_input(f"Speak to {selected_name}...")
 if st.session_state.pending_starter:
     user_input = st.session_state.pending_starter
