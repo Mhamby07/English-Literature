@@ -27,125 +27,111 @@ genai.configure(api_key=st.secrets["API_KEY"])
 TEACHER_PASSWORD = st.secrets.get("TEACHER_PASSWORD", "teacher123")
  
 # ============================================================
-# 2. CUSTOM CSS (editorial / dark-academia aesthetic)
+# 2. CUSTOM CSS (Clean, High-Contrast Glassmorphism)
 # ============================================================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap');
  
-/* ── Root tokens ── */
 :root {
-    --ink:        #1a1209;
-    --parchment:  #f5f0e8;
-    --sepia:      #8b6914;
-    --accent:     #c0392b;
-    --muted:      #6b5c45;
-    --panel:      #2b2016;
-    --panel-lite: #3d2e1a;
-    --border:     rgba(139,105,20,0.35);
-    --radius:     6px;
+    --text-main: #ffffff;
+    --text-muted: #cccccc;
+    --glass-bg: rgba(20, 20, 20, 0.75); /* Dark frosted glass */
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --accent: #4da6ff;
+    --radius: 8px;
 }
  
-/* ── Global resets ── */
 html, body, [data-testid="stAppViewContainer"] {
-    background-color: var(--ink) !important;
-    color: var(--parchment) !important;
-    font-family: 'Crimson Pro', Georgia, serif;
-    font-size: 17px;
-}
- 
-h1, h2, h3, h4 {
-    font-family: 'Playfair Display', Georgia, serif;
-    color: var(--parchment) !important;
-    letter-spacing: .02em;
-}
- 
-/* ── Sidebar ── */
-[data-testid="stSidebar"] {
-    background-color: var(--panel) !important;
-    border-right: 1px solid var(--border);
-}
-[data-testid="stSidebar"] * { color: var(--parchment) !important; }
-[data-testid="stSidebar"] .stSelectbox label,
-[data-testid="stSidebar"] .stToggle label { font-size: 0.85rem; color: var(--sepia) !important; }
- 
-/* ── Selectbox & inputs ── */
-[data-testid="stSelectbox"] > div > div {
-    background: var(--panel-lite) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    color: var(--parchment) !important;
-}
- 
-/* ── Chat messages ── */
-[data-testid="stChatMessage"] {
-    background: var(--panel-lite) !important;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 10px;
-    padding: 10px 14px;
-}
-[data-testid="stChatMessage"][data-testid*="user"] {
-    background: rgba(192,57,43,0.12) !important;
-    border-color: rgba(192,57,43,0.4);
-}
- 
-/* ── Chat input ── */
-[data-testid="stChatInput"] textarea {
-    background: var(--panel-lite) !important;
-    border: 1px solid var(--border) !important;
-    color: var(--parchment) !important;
-    font-family: 'Crimson Pro', serif;
+    color: var(--text-main) !important;
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
 }
  
-/* ── Buttons ── */
-.stButton > button {
-    background: var(--panel-lite) !important;
-    color: var(--parchment) !important;
-    border: 1px solid var(--border) !important;
+h1, h2, h3, h4 {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-main) !important;
+}
+
+/* Make Header Transparent so background shows through */
+[data-testid="stHeader"] {
+    background: transparent !important;
+}
+ 
+/* ── Sidebar Glass Effect ── */
+[data-testid="stSidebar"] {
+    background-color: rgba(10, 10, 10, 0.6) !important;
+    backdrop-filter: blur(12px);
+    border-right: 1px solid var(--glass-border);
+}
+[data-testid="stSidebar"] * { color: var(--text-main) !important; }
+ 
+/* ── Selectboxes & Inputs ── */
+[data-testid="stSelectbox"] > div > div, 
+[data-testid="stChatInput"] textarea {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
     border-radius: var(--radius) !important;
-    font-family: 'Crimson Pro', serif;
-    font-size: 15px;
+    color: var(--text-main) !important;
+}
+ 
+/* ── Chat Messages ── */
+[data-testid="stChatMessage"] {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    margin-bottom: 15px;
+    padding: 15px;
+}
+[data-testid="stChatMessage"][data-testid*="user"] {
+    background: rgba(77, 166, 255, 0.15) !important; /* Subtle blue tint for user */
+    border-color: rgba(77, 166, 255, 0.3);
+}
+ 
+/* ── Buttons ── */
+.stButton > button, [data-testid="stDownloadButton"] > button {
+    background: var(--glass-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--radius) !important;
     transition: all .2s;
 }
-.stButton > button:hover {
-    background: var(--sepia) !important;
-    border-color: var(--sepia) !important;
-    color: var(--ink) !important;
+.stButton > button:hover, [data-testid="stDownloadButton"] > button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--text-main) !important;
 }
  
-/* ── Mood badge ── */
+/* ── UI Elements ── */
+hr { border-color: var(--glass-border) !important; }
+ 
 .mood-badge {
     display: inline-block;
-    padding: 3px 10px;
+    padding: 4px 12px;
     border-radius: 20px;
-    font-size: 0.78rem;
-    font-family: 'Crimson Pro', serif;
-    letter-spacing: .05em;
-    text-transform: uppercase;
-    border: 1px solid var(--border);
-    background: var(--panel-lite);
-    margin-top: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    margin-top: 5px;
 }
  
-/* ── Intro card ── */
 .intro-card {
-    background: linear-gradient(135deg, var(--panel-lite), var(--panel));
-    border: 1px solid var(--border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius);
-    padding: 18px 22px;
-    margin-bottom: 18px;
+    padding: 20px;
+    margin-bottom: 20px;
     font-style: italic;
-    line-height: 1.7;
-    color: var(--parchment);
+    line-height: 1.6;
 }
 .intro-card .char-name {
     font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-style: normal;
-    color: var(--sepia);
-    margin-bottom: 6px;
+    color: var(--accent);
+    margin-bottom: 8px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -154,13 +140,13 @@ h1, h2, h3, h4 {
 # 3. DYNAMIC BACKGROUND THEMES
 # ============================================================
 BOOK_BACKGROUNDS = {
-    "Where the Crawdads Sing": "linear-gradient(135deg, #0a140d 0%, #15291b 100%)",
-    "The Catcher in the Rye": "linear-gradient(135deg, #1c1d21 0%, #2b2d36 100%)",
-    "Macbeth": "linear-gradient(135deg, #1f0808 0%, #120303 100%)",
-    "Frankenstein": "linear-gradient(135deg, #0b1317 0%, #16242b 100%)",
-    "The Road": "linear-gradient(135deg, #121212 0%, #050505 100%)"
+    "Where the Crawdads Sing": "linear-gradient(135deg, #0f2015 0%, #1a3322 100%)",
+    "The Catcher in the Rye": "linear-gradient(135deg, #1c2128 0%, #28303d 100%)",
+    "Macbeth": "linear-gradient(135deg, #2a0a0a 0%, #140505 100%)",
+    "Frankenstein": "linear-gradient(135deg, #0b171e 0%, #152936 100%)",
+    "The Road": "linear-gradient(135deg, #121212 0%, #000000 100%)"
 }
-
+ 
 # ============================================================
 # 4. THE MASTER BOOK DATABASE
 # ============================================================
@@ -326,9 +312,7 @@ BOOKS = {
     }
 }
  
-# ============================================================
-# 5. QUIZ BANK
-# ============================================================
+# ── Comprehension quiz bank (per character) ──
 QUIZZES = {
     "Kya Clark": [
         {"q": "What does Kya use to earn money before Tate teaches her to read?", "a": ["Sells mussels and smoked fish", "Paints portraits", "Works at the diner", "Sells feathers"], "correct": 0},
@@ -371,9 +355,11 @@ QUIZZES = {
 }
  
 # ============================================================
-# 6. HELPER FUNCTIONS
+# 5. HELPER FUNCTIONS
 # ============================================================
+ 
 def asset_path(filename: str) -> Path:
+    """Return full path to an asset file, or None if it doesn't exist."""
     if not filename:
         return None
     p = ASSETS_DIR / filename
@@ -404,9 +390,14 @@ CORE RULES:
  
 def sanitize_input(text: str) -> str:
     injection_patterns = [
-        "ignore all previous instructions", "ignore your instructions",
-        "disregard the above", "you are now", "act as if",
-        "pretend you are", "[system", "<system",
+        "ignore all previous instructions",
+        "ignore your instructions",
+        "disregard the above",
+        "you are now",
+        "act as if",
+        "pretend you are",
+        "[system",
+        "<system",
     ]
     lower = text.lower()
     for pattern in injection_patterns:
@@ -428,6 +419,26 @@ def get_triggered_mood(user_input: str, char_data: dict) -> str:
         if keyword.lower() in user_input.lower():
             return char_data.get("mood_triggered", char_data.get("mood_default", ""))
     return char_data.get("mood_default", "")
+ 
+def generate_discussion_prompts(transcript: str, book: str, char_name: str) -> str:
+    model = genai.GenerativeModel(
+        model_name='gemini-2.5-flash',
+        generation_config=genai.types.GenerationConfig(temperature=0.5)
+    )
+    prompt = f"""You are a high school English teacher. A student just had this conversation with the character {char_name} from '{book}':
+ 
+---
+{transcript}
+---
+ 
+Generate exactly 3 discussion or essay questions based on what was actually discussed. 
+Make them thought-provoking, suitable for a high school or college literature class.
+Format: numbered list, one question per line, no extra commentary."""
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception:
+        return "Could not generate questions. Please try again."
  
 def init_session_state():
     defaults = {
@@ -463,6 +474,16 @@ def reset_conversation():
     st.session_state.discussion_prompts = None
     st.session_state.session_start = time.time()
  
+def save_transcript_to_store(session_id, book, char_name, location, history):
+    if history:
+        st.session_state.all_transcripts[session_id] = {
+            "book": book,
+            "character": char_name,
+            "location": location,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "history": history
+        }
+ 
 def format_transcript(char_name, book, location, history) -> str:
     transcript = f"Interview Transcript: {char_name}\nText: {book}\nLocation: {location}\nDate: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
     transcript += "=" * 50 + "\n\n"
@@ -470,38 +491,40 @@ def format_transcript(char_name, book, location, history) -> str:
         role = "STUDENT" if msg["role"] == "user" else char_name.upper()
         transcript += f"{role}:\n{msg['content']}\n\n"
     return transcript
-
+ 
 # ============================================================
-# 7. BOOTSTRAP & SIDEBAR UI
+# 6. BOOTSTRAP & DYNAMIC BACKGROUND INJECTION
 # ============================================================
 init_session_state()
- 
+
+# Inject the dynamic background exactly here so it updates the entire app container
+selected_book_initial = st.session_state.current_book if st.session_state.current_book else list(BOOKS.keys())[0]
+current_bg = BOOK_BACKGROUNDS.get(selected_book_initial, "var(--ink)")
+
+st.markdown(f"""
+<style>
+.stApp {{
+    background: {current_bg} !important;
+    background-attachment: fixed !important;
+    transition: background 0.5s ease;
+}}
+</style>
+""", unsafe_allow_html=True)
+
+# ============================================================
+# 7. SIDEBAR UI
+# ============================================================
 with st.sidebar:
-    st.markdown("<h2 style='font-family:Playfair Display,serif;'>📚 Literary Multiverse</h2>", unsafe_allow_html=True)
+    st.markdown("<h2>📚 Literary Multiverse</h2>", unsafe_allow_html=True)
  
     # ── Book selector ──
     selected_book = st.selectbox("Select a Text:", list(BOOKS.keys()), key="book_select")
     book_data = BOOKS[selected_book]
-    
-    # ── DYNAMIC ATMOSPHERE INJECTION ──
-    current_bg = BOOK_BACKGROUNDS.get(selected_book, "var(--ink)")
-    st.markdown(f"""
-    <style>
-    [data-testid="stAppViewContainer"] {{
-        background: {current_bg} !important;
-        transition: background 0.5s ease;
-    }}
-    [data-testid="stSidebar"] {{
-        background: rgba(20, 15, 10, 0.6) !important;
-        backdrop-filter: blur(10px);
-    }}
-    </style>
-    """, unsafe_allow_html=True)
  
     if selected_book != st.session_state.current_book:
         st.session_state.current_book = selected_book
         reset_conversation()
-        st.rerun()
+        st.rerun() 
  
     st.markdown("---")
  
@@ -509,10 +532,10 @@ with st.sidebar:
     selected_name = st.selectbox("Select Character:", list(book_data["characters"].keys()), key="char_select")
     selected_location = st.selectbox("Select Location:", list(book_data["locations"].keys()), key="loc_select")
     
-    # ── Render Images & Audio ──
     char_data = book_data["characters"][selected_name]
     loc_data = book_data["locations"][selected_location]
     
+    # ── Render Images & Audio ──
     img_path = asset_path(char_data.get("image_file"))
     if img_path:
         st.image(str(img_path), use_column_width=True)
@@ -530,6 +553,7 @@ with st.sidebar:
     if st.session_state.chat_history:
         transcript_data = format_transcript(selected_name, selected_book, selected_location, st.session_state.chat_history)
         st.download_button("📝 Download Transcript", data=transcript_data, file_name=f"{selected_name.replace(' ', '_')}_Transcript.txt", mime="text/plain")
+        save_transcript_to_store(st.session_state.session_id, selected_book, selected_name, selected_location, st.session_state.chat_history)
 
     if st.button("🗑️ Start New Conversation"):
         reset_conversation()
@@ -538,11 +562,12 @@ with st.sidebar:
 # ============================================================
 # 8. MAIN UI & CHAT INTERFACE
 # ============================================================
+
 # Display Intro Card
 st.markdown(f"""
 <div class="intro-card">
     <div>{book_data['intro']}</div>
-    <hr style="margin: 10px 0;">
+    <hr style="margin: 10px 0; border-color: rgba(255,255,255,0.1);">
     <div class="char-name">{selected_name}</div>
     <div>{char_data['scene_intro']}</div>
 </div>
