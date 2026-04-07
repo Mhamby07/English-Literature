@@ -27,7 +27,7 @@ genai.configure(api_key=st.secrets["API_KEY"])
 TEACHER_PASSWORD = st.secrets.get("TEACHER_PASSWORD", "teacher123")
  
 # ============================================================
-# 2. CUSTOM CSS  (editorial / dark-academia aesthetic)
+# 2. CUSTOM CSS (editorial / dark-academia aesthetic)
 # ============================================================
 st.markdown("""
 <style>
@@ -129,36 +129,6 @@ h1, h2, h3, h4 {
     margin-top: 4px;
 }
  
-/* ── Divider ── */
-hr { border-color: var(--border) !important; }
- 
-/* ── Info / success / error boxes ── */
-[data-testid="stAlert"] {
-    background: var(--panel-lite) !important;
-    border-left-color: var(--sepia) !important;
-    color: var(--parchment) !important;
-}
- 
-/* ── Download button ── */
-[data-testid="stDownloadButton"] > button {
-    width: 100%;
-    background: var(--sepia) !important;
-    color: var(--ink) !important;
-    font-weight: 700;
-    border: none !important;
-}
- 
-/* ── Expander ── */
-[data-testid="stExpander"] {
-    background: var(--panel-lite) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-}
-[data-testid="stExpander"] summary { color: var(--sepia) !important; }
- 
-/* ── Spinner text ── */
-.stSpinner p { color: var(--sepia) !important; font-style: italic; }
- 
 /* ── Intro card ── */
 .intro-card {
     background: linear-gradient(135deg, var(--panel-lite), var(--panel));
@@ -177,41 +147,22 @@ hr { border-color: var(--border) !important; }
     color: var(--sepia);
     margin-bottom: 6px;
 }
- 
-/* ── Quiz card ── */
-.quiz-card {
-    background: var(--panel-lite);
-    border: 1px solid var(--sepia);
-    border-radius: var(--radius);
-    padding: 16px 20px;
-    margin: 14px 0;
-}
-.quiz-card h4 { color: var(--sepia) !important; margin-bottom: 8px; }
- 
-/* ── Glossary term ── */
-.glossary-term {
-    background: var(--panel);
-    border-left: 3px solid var(--sepia);
-    border-radius: 0 var(--radius) var(--radius) 0;
-    padding: 8px 12px;
-    margin: 6px 0;
-    font-size: 0.92rem;
-}
-.glossary-term strong { color: var(--sepia); }
- 
-/* ── Timer badge ── */
-.timer-badge {
-    font-size: 0.8rem;
-    color: var(--muted);
-    font-style: italic;
-    float: right;
-}
 </style>
 """, unsafe_allow_html=True)
  
- 
 # ============================================================
-# 3. THE MASTER BOOK DATABASE
+# 3. DYNAMIC BACKGROUND THEMES
+# ============================================================
+BOOK_BACKGROUNDS = {
+    "Where the Crawdads Sing": "linear-gradient(135deg, #0a140d 0%, #15291b 100%)",
+    "The Catcher in the Rye": "linear-gradient(135deg, #1c1d21 0%, #2b2d36 100%)",
+    "Macbeth": "linear-gradient(135deg, #1f0808 0%, #120303 100%)",
+    "Frankenstein": "linear-gradient(135deg, #0b1317 0%, #16242b 100%)",
+    "The Road": "linear-gradient(135deg, #121212 0%, #050505 100%)"
+}
+
+# ============================================================
+# 4. THE MASTER BOOK DATABASE
 # ============================================================
 BOOKS = {
     "Where the Crawdads Sing": {
@@ -375,7 +326,9 @@ BOOKS = {
     }
 }
  
-# ── Comprehension quiz bank (per character) ──
+# ============================================================
+# 5. QUIZ BANK
+# ============================================================
 QUIZZES = {
     "Kya Clark": [
         {"q": "What does Kya use to earn money before Tate teaches her to read?", "a": ["Sells mussels and smoked fish", "Paints portraits", "Works at the diner", "Sells feathers"], "correct": 0},
@@ -418,19 +371,15 @@ QUIZZES = {
 }
  
 # ============================================================
-# 4. HELPER FUNCTIONS
+# 6. HELPER FUNCTIONS
 # ============================================================
- 
 def asset_path(filename: str) -> Path:
-    """Return full path to an asset file, or None if it doesn't exist."""
     if not filename:
         return None
     p = ASSETS_DIR / filename
     return p if p.exists() else None
  
- 
 def build_system_prompt(book, char_name, char_data, location, loc_data, require_evidence, dual_mode=False, dual_partner=None):
-    """Construct the system prompt cleanly, separating concerns."""
     base = f"""You are {char_name} from '{book}'.
 {char_data['prompt_addition']}
  
@@ -453,18 +402,11 @@ CORE RULES:
  
     return base
  
- 
 def sanitize_input(text: str) -> str:
-    """Basic prompt injection guard — strip common injection patterns."""
     injection_patterns = [
-        "ignore all previous instructions",
-        "ignore your instructions",
-        "disregard the above",
-        "you are now",
-        "act as if",
-        "pretend you are",
-        "[system",
-        "<system",
+        "ignore all previous instructions", "ignore your instructions",
+        "disregard the above", "you are now", "act as if",
+        "pretend you are", "[system", "<system",
     ]
     lower = text.lower()
     for pattern in injection_patterns:
@@ -472,9 +414,7 @@ def sanitize_input(text: str) -> str:
             return "[Message filtered: please ask the character a genuine question about the story.]"
     return text
  
- 
 def check_triggers(user_input: str, triggers: dict) -> str:
-    """Append any triggered directives to the prompt (not stored in visible history)."""
     extras = []
     for keyword, directive in triggers.items():
         if keyword.lower() in user_input.lower():
@@ -483,39 +423,13 @@ def check_triggers(user_input: str, triggers: dict) -> str:
         return user_input + "\n\n" + "\n".join(extras)
     return user_input
  
- 
 def get_triggered_mood(user_input: str, char_data: dict) -> str:
-    """Return triggered mood label if a keyword is matched, else default mood."""
     for keyword in char_data.get("triggers", {}):
         if keyword.lower() in user_input.lower():
             return char_data.get("mood_triggered", char_data.get("mood_default", ""))
     return char_data.get("mood_default", "")
  
- 
-def generate_discussion_prompts(transcript: str, book: str, char_name: str) -> str:
-    """Call Gemini to generate discussion questions from the transcript."""
-    model = genai.GenerativeModel(
-        model_name='gemini-2.5-flash',
-        generation_config=genai.types.GenerationConfig(temperature=0.5)
-    )
-    prompt = f"""You are a high school English teacher. A student just had this conversation with the character {char_name} from '{book}':
- 
----
-{transcript}
----
- 
-Generate exactly 3 discussion or essay questions based on what was actually discussed. 
-Make them thought-provoking, suitable for a high school or college literature class.
-Format: numbered list, one question per line, no extra commentary."""
-    try:
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception:
-        return "Could not generate questions. Please try again."
- 
- 
 def init_session_state():
-    """Initialize all session state keys safely in one place."""
     defaults = {
         "chat_history": [],
         "current_book": None,
@@ -529,7 +443,7 @@ def init_session_state():
         "quiz_answered": False,
         "quiz_result": None,
         "teacher_authenticated": False,
-        "all_transcripts": {},  # {session_id: transcript_dict}
+        "all_transcripts": {},
         "session_id": hashlib.md5(str(time.time()).encode()).hexdigest()[:8],
         "show_glossary": False,
         "discussion_prompts": None,
@@ -539,9 +453,7 @@ def init_session_state():
         if key not in st.session_state:
             st.session_state[key] = val
  
- 
 def reset_conversation():
-    """Clear conversation and chat session cleanly."""
     st.session_state.chat_history = []
     st.session_state.chat_session = None
     st.session_state.current_mood = None
@@ -551,19 +463,6 @@ def reset_conversation():
     st.session_state.discussion_prompts = None
     st.session_state.session_start = time.time()
  
- 
-def save_transcript_to_store(session_id, book, char_name, location, history):
-    """Persist transcript in session state for teacher dashboard."""
-    if history:
-        st.session_state.all_transcripts[session_id] = {
-            "book": book,
-            "character": char_name,
-            "location": location,
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "history": history
-        }
- 
- 
 def format_transcript(char_name, book, location, history) -> str:
     transcript = f"Interview Transcript: {char_name}\nText: {book}\nLocation: {location}\nDate: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n"
     transcript += "=" * 50 + "\n\n"
@@ -571,23 +470,33 @@ def format_transcript(char_name, book, location, history) -> str:
         role = "STUDENT" if msg["role"] == "user" else char_name.upper()
         transcript += f"{role}:\n{msg['content']}\n\n"
     return transcript
- 
- 
+
 # ============================================================
-# 5. SESSION STATE BOOTSTRAP
+# 7. BOOTSTRAP & SIDEBAR UI
 # ============================================================
 init_session_state()
  
- 
-# ============================================================
-# 6. SIDEBAR
-# ============================================================
 with st.sidebar:
     st.markdown("<h2 style='font-family:Playfair Display,serif;'>📚 Literary Multiverse</h2>", unsafe_allow_html=True)
  
     # ── Book selector ──
     selected_book = st.selectbox("Select a Text:", list(BOOKS.keys()), key="book_select")
     book_data = BOOKS[selected_book]
+    
+    # ── DYNAMIC ATMOSPHERE INJECTION ──
+    current_bg = BOOK_BACKGROUNDS.get(selected_book, "var(--ink)")
+    st.markdown(f"""
+    <style>
+    [data-testid="stAppViewContainer"] {{
+        background: {current_bg} !important;
+        transition: background 0.5s ease;
+    }}
+    [data-testid="stSidebar"] {{
+        background: rgba(20, 15, 10, 0.6) !important;
+        backdrop-filter: blur(10px);
+    }}
+    </style>
+    """, unsafe_allow_html=True)
  
     if selected_book != st.session_state.current_book:
         st.session_state.current_book = selected_book
@@ -596,294 +505,111 @@ with st.sidebar:
  
     st.markdown("---")
  
-    # ── Character selector ──
+    # ── Character & Location Selectors ──
     selected_name = st.selectbox("Select Character:", list(book_data["characters"].keys()), key="char_select")
-    char_data = book_data["characters"][selected_name]
- 
-    # ── Character image ──
-    img = asset_path(char_data.get("image_file", ""))
-    if img:
-        st.image(str(img), use_container_width=True)
- 
-    # ── Mood badge ──
-    mood = st.session_state.current_mood or char_data.get("mood_default", "")
-    st.markdown(f"<div class='mood-badge'>{mood}</div>", unsafe_allow_html=True)
- 
-    st.markdown("---")
- 
-    # ── Location selector ──
     selected_location = st.selectbox("Select Location:", list(book_data["locations"].keys()), key="loc_select")
+    
+    # ── Render Images & Audio ──
+    char_data = book_data["characters"][selected_name]
     loc_data = book_data["locations"][selected_location]
- 
-    loc_img = asset_path(loc_data.get("image_file", ""))
-    if loc_img:
-        st.image(str(loc_img), use_container_width=True, caption=f"📍 {selected_location}")
- 
-    # ── Ambient audio ──
-    audio = asset_path(loc_data.get("audio_file", ""))
-    if audio:
-        st.audio(str(audio), format="audio/mp3")
-        st.caption("🎧 *Ambient soundscape*")
- 
+    
+    img_path = asset_path(char_data.get("image_file"))
+    if img_path:
+        st.image(str(img_path), use_column_width=True)
+        
+    audio_path = asset_path(loc_data.get("audio_file"))
+    if audio_path:
+        st.audio(str(audio_path), format="audio/mp3")
+        st.caption("🎧 *Ambient Soundscape Active*")
+        
     st.markdown("---")
- 
-    # ── Modes ──
-    require_evidence = st.toggle("📖 Require Textual Evidence", value=False)
-    if require_evidence:
-        st.caption("The character must cite specific textual memories.")
- 
-    # ── Dual character mode ──
-    other_chars = [c for c in book_data["characters"].keys() if c != selected_name]
-    dual_mode = st.toggle("🎭 Dual Character Mode", value=False)
-    dual_partner = None
-    if dual_mode and other_chars:
-        dual_partner = st.selectbox("Add second voice:", other_chars)
-        st.caption(f"Both {selected_name} and {dual_partner} may respond.")
- 
-    st.markdown("---")
- 
-    # ── Session timer ──
-    elapsed = int(time.time() - st.session_state.session_start)
-    mins, secs = divmod(elapsed, 60)
-    st.caption(f"⏱️ Session time: {mins:02d}:{secs:02d}")
- 
-    st.markdown("---")
- 
-    # ── Export ──
+    
+    # ── Toggles & Controls ──
+    require_evidence = st.toggle("Require Textual Evidence 📖")
+    
     if st.session_state.chat_history:
-        transcript_text = format_transcript(selected_name, selected_book, selected_location, st.session_state.chat_history)
-        st.download_button(
-            label="📝 Download Transcript",
-            data=transcript_text,
-            file_name=f"{selected_name.replace(' ', '_')}_Transcript.txt",
-            mime="text/plain"
-        )
- 
-    if st.button("🗑️ New Conversation"):
+        transcript_data = format_transcript(selected_name, selected_book, selected_location, st.session_state.chat_history)
+        st.download_button("📝 Download Transcript", data=transcript_data, file_name=f"{selected_name.replace(' ', '_')}_Transcript.txt", mime="text/plain")
+
+    if st.button("🗑️ Start New Conversation"):
         reset_conversation()
         st.rerun()
- 
-    st.markdown("---")
- 
-    # ── Teacher dashboard (password-protected) ──
-    with st.expander("🔒 Teacher Dashboard"):
-        if not st.session_state.teacher_authenticated:
-            pw = st.text_input("Password:", type="password", key="teacher_pw")
-            if st.button("Unlock", key="teacher_login"):
-                if pw == TEACHER_PASSWORD:
-                    st.session_state.teacher_authenticated = True
-                    st.rerun()
-                else:
-                    st.error("Incorrect password.")
-        else:
-            st.success("✅ Teacher Mode Active")
-            if st.session_state.all_transcripts:
-                for sid, t in st.session_state.all_transcripts.items():
-                    with st.expander(f"{t['character']} — {t['timestamp']}"):
-                        st.write(f"**Book:** {t['book']}  |  **Location:** {t['location']}")
-                        for msg in t["history"]:
-                            role = "Student" if msg["role"] == "user" else t["character"]
-                            st.markdown(f"**{role}:** {msg['content']}")
-            else:
-                st.info("No transcripts saved yet.")
- 
- 
+
 # ============================================================
-# 7. DETECT CHARACTER / LOCATION CHANGES & INIT MODEL
+# 8. MAIN UI & CHAT INTERFACE
 # ============================================================
-char_changed = (st.session_state.current_char != selected_name)
-loc_changed  = (st.session_state.current_loc  != selected_location)
- 
-if char_changed or loc_changed:
+# Display Intro Card
+st.markdown(f"""
+<div class="intro-card">
+    <div>{book_data['intro']}</div>
+    <hr style="margin: 10px 0;">
+    <div class="char-name">{selected_name}</div>
+    <div>{char_data['scene_intro']}</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Set Default Mood
+if st.session_state.current_mood is None:
+    st.session_state.current_mood = char_data.get("mood_default", "")
+
+st.markdown(f"<div class='mood-badge'>Current Mood: {st.session_state.current_mood}</div>", unsafe_allow_html=True)
+
+# AI Initialization
+if st.session_state.chat_session is None or st.session_state.current_char != selected_name or st.session_state.current_loc != selected_location:
     st.session_state.current_char = selected_name
-    st.session_state.current_loc  = selected_location
-    reset_conversation()
-    # Don't rerun — let the model initialize below on the same pass
- 
-# ── Build system prompt ──
-system_prompt = build_system_prompt(
-    selected_book, selected_name, char_data,
-    selected_location, loc_data,
-    require_evidence, dual_mode, dual_partner
-)
- 
-# ── Initialize or rebuild model/chat session ──
-if st.session_state.chat_session is None:
+    st.session_state.current_loc = selected_location
+    
+    prompt = build_system_prompt(selected_book, selected_name, char_data, selected_location, loc_data, require_evidence)
     model = genai.GenerativeModel(
         model_name='gemini-2.5-flash',
-        system_instruction=system_prompt,
+        system_instruction=prompt,
         generation_config=genai.types.GenerationConfig(temperature=0.3)
     )
     st.session_state.chat_session = model.start_chat(history=[])
- 
- 
-# ============================================================
-# 8. MAIN CHAT INTERFACE
-# ============================================================
-st.markdown(f"<h1>🗣️ Conversation with {selected_name}</h1>", unsafe_allow_html=True)
-st.caption(f"📍 {selected_location} &nbsp;|&nbsp; 📖 {selected_book}")
- 
-# ── Book intro banner ──
-with st.expander("📜 Setting the Scene", expanded=len(st.session_state.chat_history) == 0):
-    st.markdown(f"""
-    <div class='intro-card'>
-        <div class='char-name'>{selected_name}</div>
-        <em>{book_data.get('intro', '')}</em><br><br>
-        {char_data.get('scene_intro', '')}
-    </div>
-    """, unsafe_allow_html=True)
- 
-    # ── Bio pill ──
-    st.info(f"**{selected_name}:** {char_data['bio']}")
- 
-# ── Vocabulary glossary ──
-vocab = char_data.get("vocab", {})
-if vocab:
-    with st.expander("📖 Key Vocabulary"):
-        for term, definition in vocab.items():
-            st.markdown(f"<div class='glossary-term'><strong>{term}</strong> — {definition}</div>", unsafe_allow_html=True)
- 
-st.markdown("---")
- 
-# ── Socratic starters (only when chat is empty) ──
+
+# Socratic Starters
 if not st.session_state.chat_history:
-    st.markdown("##### 💡 Suggested questions to get started:")
+    st.info("💡 **Not sure what to ask? Try one of these prompts:**")
+    col1, col2 = st.columns(2)
     starters = char_data.get("starters", [])
-    cols = st.columns(len(starters)) if starters else []
-    for i, starter in enumerate(starters):
-        if cols[i].button(starter, key=f"starter_{i}"):
-            st.session_state.pending_starter = starter
- 
-st.markdown("")
- 
-# ── Display chat history ──
+    if len(starters) > 0 and col1.button(starters[0]):
+        st.session_state.pending_starter = starters[0]
+    if len(starters) > 1 and col2.button(starters[1]):
+        st.session_state.pending_starter = starters[1]
+
+# Render Chat History
 for message in st.session_state.chat_history:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
- 
- 
-# ── Comprehension quiz (every 4 exchanges) ──
-exchange_count = len([m for m in st.session_state.chat_history if m["role"] == "user"])
-quiz_bank = QUIZZES.get(selected_name, [])
- 
-if quiz_bank and exchange_count > 0 and exchange_count % 4 == 0 and not st.session_state.quiz_answered:
-    q_idx = st.session_state.quiz_index % len(quiz_bank)
-    quiz = quiz_bank[q_idx]
-    st.markdown("<div class='quiz-card'>", unsafe_allow_html=True)
-    st.markdown(f"#### 🎓 Quick Check — Question {q_idx + 1}")
-    st.write(quiz["q"])
-    for i, option in enumerate(quiz["a"]):
-        if st.button(option, key=f"quiz_opt_{i}_{exchange_count}"):
-            st.session_state.quiz_answered = True
-            st.session_state.quiz_result = (i == quiz["correct"])
-            st.session_state.quiz_index += 1
-    st.markdown("</div>", unsafe_allow_html=True)
- 
-if st.session_state.quiz_answered and st.session_state.quiz_result is not None:
-    if st.session_state.quiz_result:
-        st.success("✅ Correct! Keep exploring.")
-    else:
-        q_idx = (st.session_state.quiz_index - 1) % len(quiz_bank) if quiz_bank else 0
-        correct_text = quiz_bank[q_idx]["a"][quiz_bank[q_idx]["correct"]] if quiz_bank else ""
-        st.error(f"❌ Not quite. The answer was: **{correct_text}**")
-    st.session_state.quiz_answered = False
-    st.session_state.quiz_result = None
- 
- 
-# ── Discussion prompt generator ──
-if len(st.session_state.chat_history) >= 6:
-    st.markdown("---")
-    col_a, col_b = st.columns([2, 1])
-    with col_a:
-        st.markdown("##### 💬 Generate Discussion Questions")
-        st.caption("Based on your conversation so far.")
-    with col_b:
-        if st.button("✨ Generate", key="gen_prompts"):
-            transcript_so_far = format_transcript(selected_name, selected_book, selected_location, st.session_state.chat_history)
-            with st.spinner("Crafting questions from your conversation..."):
-                st.session_state.discussion_prompts = generate_discussion_prompts(
-                    transcript_so_far, selected_book, selected_name
-                )
- 
-    if st.session_state.discussion_prompts:
-        with st.expander("📋 Discussion & Essay Questions", expanded=True):
-            st.markdown(st.session_state.discussion_prompts)
- 
- 
-# ============================================================
-# 9. CHAT INPUT & AI RESPONSE
-# ============================================================
+
+# Handle User Input
 user_input = st.chat_input(f"Speak to {selected_name}...")
- 
-# ── Handle starter buttons ──
 if st.session_state.pending_starter:
     user_input = st.session_state.pending_starter
     st.session_state.pending_starter = None
- 
+
 if user_input:
-    # Sanitize against prompt injection
-    safe_input = sanitize_input(user_input)
- 
-    # Display user message
-    with st.chat_message("user"):
-        st.markdown(safe_input)
-    st.session_state.chat_history.append({"role": "user", "content": safe_input})
- 
-    # Update mood badge (based on keyword match)
-    st.session_state.current_mood = get_triggered_mood(safe_input, char_data)
- 
-    # Inject hidden triggers (not stored in visible history)
-    ai_prompt = check_triggers(safe_input, char_data.get("triggers", {}))
- 
-    # ── AI call with spinner ──
+    clean_input = sanitize_input(user_input)
+    st.chat_message("user").markdown(clean_input)
+    st.session_state.chat_history.append({"role": "user", "content": clean_input})
+    
+    # Update Mood based on triggers
+    st.session_state.current_mood = get_triggered_mood(clean_input, char_data)
+    
+    # Inject Triggers into API prompt
+    ai_prompt = check_triggers(clean_input, char_data.get("triggers", {}))
+    
     try:
-        with st.spinner(f"*{selected_name} considers your words...*"):
-            response = st.session_state.chat_session.send_message(ai_prompt)
- 
-        ai_text = response.text
- 
+        response = st.session_state.chat_session.send_message(ai_prompt)
         with st.chat_message("assistant"):
-            st.markdown(ai_text)
-        st.session_state.chat_history.append({"role": "assistant", "content": ai_text})
- 
-        # ── Dual mode: second character responds ──
-        if dual_mode and dual_partner and dual_partner in book_data["characters"]:
-            partner_data = book_data["characters"][dual_partner]
-            partner_prompt_text = build_system_prompt(
-                selected_book, dual_partner, partner_data,
-                selected_location, loc_data,
-                require_evidence
-            )
-            partner_model = genai.GenerativeModel(
-                model_name='gemini-2.5-flash',
-                system_instruction=partner_prompt_text,
-                generation_config=genai.types.GenerationConfig(temperature=0.35)
-            )
-            partner_context = f"[The student just said to {selected_name}: \"{safe_input}\". {selected_name} responded: \"{ai_text}\". Now respond briefly as {dual_partner}, reacting to both.]"
- 
-            with st.spinner(f"*{dual_partner} listens and responds...*"):
-                partner_response = partner_model.generate_content(partner_context)
- 
-            partner_text = partner_response.text
-            with st.chat_message("assistant"):
-                st.markdown(f"**{dual_partner}:** {partner_text}")
-            st.session_state.chat_history.append({"role": "assistant", "content": f"**{dual_partner}:** {partner_text}"})
- 
-        # Save transcript snapshot for teacher dashboard
-        save_transcript_to_store(
-            st.session_state.session_id,
-            selected_book, selected_name,
-            selected_location,
-            st.session_state.chat_history
-        )
- 
+            st.markdown(response.text)
+        st.session_state.chat_history.append({"role": "assistant", "content": response.text})
+        st.rerun()
+             
     except ResourceExhausted:
-        st.error("🚨 API rate limit reached. Please wait 60 seconds and try again.")
-        # Roll back the user message so it doesn't show without a response
-        if st.session_state.chat_history and st.session_state.chat_history[-1]["role"] == "user":
-            st.session_state.chat_history.pop()
- 
+        st.error("🚨 **System Overloaded.** Please wait 60 seconds.")
+        st.session_state.chat_history.pop()
     except Exception as e:
-        st.error(f"⚠️ An error occurred: {e}")
-        if st.session_state.chat_history and st.session_state.chat_history[-1]["role"] == "user":
-            st.session_state.chat_history.pop()
+        st.error(f"An unexpected error occurred: {e}")
+        if st.session_state.chat_history:
+             st.session_state.chat_history.pop()
