@@ -27,128 +27,7 @@ genai.configure(api_key=st.secrets["API_KEY"])
 TEACHER_PASSWORD = st.secrets.get("TEACHER_PASSWORD", "teacher123")
  
 # ============================================================
-# 2. CUSTOM CSS (Clean, High-Contrast Glassmorphism)
-# ============================================================
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap');
- 
-:root {
-    --text-main: #ffffff;
-    --text-muted: #cccccc;
-    --glass-bg: rgba(20, 20, 20, 0.75); /* Dark frosted glass */
-    --glass-border: rgba(255, 255, 255, 0.15);
-    --accent: #4da6ff;
-    --radius: 8px;
-}
- 
-html, body, [data-testid="stAppViewContainer"] {
-    color: var(--text-main) !important;
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-}
- 
-h1, h2, h3, h4 {
-    font-family: 'Playfair Display', serif;
-    color: var(--text-main) !important;
-}
-
-/* Make Header Transparent so background shows through */
-[data-testid="stHeader"] {
-    background: transparent !important;
-}
- 
-/* ── Sidebar Glass Effect ── */
-[data-testid="stSidebar"] {
-    background-color: rgba(10, 10, 10, 0.6) !important;
-    backdrop-filter: blur(12px);
-    border-right: 1px solid var(--glass-border);
-}
-[data-testid="stSidebar"] * { color: var(--text-main) !important; }
- 
-/* ── Selectboxes & Inputs ── */
-[data-testid="stSelectbox"] > div > div, 
-[data-testid="stChatInput"] textarea {
-    background: var(--glass-bg) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: var(--radius) !important;
-    color: var(--text-main) !important;
-}
- 
-/* ── Chat Messages ── */
-[data-testid="stChatMessage"] {
-    background: var(--glass-bg) !important;
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius);
-    margin-bottom: 15px;
-    padding: 15px;
-}
-[data-testid="stChatMessage"][data-testid*="user"] {
-    background: rgba(77, 166, 255, 0.15) !important; /* Subtle blue tint for user */
-    border-color: rgba(77, 166, 255, 0.3);
-}
- 
-/* ── Buttons ── */
-.stButton > button, [data-testid="stDownloadButton"] > button {
-    background: var(--glass-bg) !important;
-    color: var(--text-main) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-radius: var(--radius) !important;
-    transition: all .2s;
-}
-.stButton > button:hover, [data-testid="stDownloadButton"] > button:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-color: var(--text-main) !important;
-}
- 
-/* ── UI Elements ── */
-hr { border-color: var(--glass-border) !important; }
- 
-.mood-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid var(--glass-border);
-    background: var(--glass-bg);
-    margin-top: 5px;
-}
- 
-.intro-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 20px;
-    font-style: italic;
-    line-height: 1.6;
-}
-.intro-card .char-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    font-style: normal;
-    color: var(--accent);
-    margin-bottom: 8px;
-}
-</style>
-""", unsafe_allow_html=True)
- 
-# ============================================================
-# 3. DYNAMIC BACKGROUND THEMES
-# ============================================================
-BOOK_BACKGROUNDS = {
-    "Where the Crawdads Sing": "linear-gradient(135deg, #0f2015 0%, #1a3322 100%)",
-    "The Catcher in the Rye": "linear-gradient(135deg, #1c2128 0%, #28303d 100%)",
-    "Macbeth": "linear-gradient(135deg, #2a0a0a 0%, #140505 100%)",
-    "Frankenstein": "linear-gradient(135deg, #0b171e 0%, #152936 100%)",
-    "The Road": "linear-gradient(135deg, #121212 0%, #000000 100%)"
-}
- 
-# ============================================================
-# 4. THE MASTER BOOK DATABASE
+# 2. THE MASTER BOOK DATABASE
 # ============================================================
 BOOKS = {
     "Where the Crawdads Sing": {
@@ -312,7 +191,9 @@ BOOKS = {
     }
 }
  
-# ── Comprehension quiz bank (per character) ──
+# ============================================================
+# 3. QUIZ BANK
+# ============================================================
 QUIZZES = {
     "Kya Clark": [
         {"q": "What does Kya use to earn money before Tate teaches her to read?", "a": ["Sells mussels and smoked fish", "Paints portraits", "Works at the diner", "Sells feathers"], "correct": 0},
@@ -355,11 +236,10 @@ QUIZZES = {
 }
  
 # ============================================================
-# 5. HELPER FUNCTIONS
+# 4. HELPER FUNCTIONS
 # ============================================================
  
 def asset_path(filename: str) -> Path:
-    """Return full path to an asset file, or None if it doesn't exist."""
     if not filename:
         return None
     p = ASSETS_DIR / filename
@@ -493,29 +373,15 @@ def format_transcript(char_name, book, location, history) -> str:
     return transcript
  
 # ============================================================
-# 6. BOOTSTRAP & DYNAMIC BACKGROUND INJECTION
+# 5. BOOTSTRAP 
 # ============================================================
 init_session_state()
 
-# Inject the dynamic background exactly here so it updates the entire app container
-selected_book_initial = st.session_state.current_book if st.session_state.current_book else list(BOOKS.keys())[0]
-current_bg = BOOK_BACKGROUNDS.get(selected_book_initial, "var(--ink)")
-
-st.markdown(f"""
-<style>
-.stApp {{
-    background: {current_bg} !important;
-    background-attachment: fixed !important;
-    transition: background 0.5s ease;
-}}
-</style>
-""", unsafe_allow_html=True)
-
 # ============================================================
-# 7. SIDEBAR UI
+# 6. SIDEBAR UI
 # ============================================================
 with st.sidebar:
-    st.markdown("<h2>📚 Literary Multiverse</h2>", unsafe_allow_html=True)
+    st.header("📚 Literary Multiverse")
  
     # ── Book selector ──
     selected_book = st.selectbox("Select a Text:", list(BOOKS.keys()), key="book_select")
@@ -560,24 +426,20 @@ with st.sidebar:
         st.rerun()
 
 # ============================================================
-# 8. MAIN UI & CHAT INTERFACE
+# 7. MAIN UI & CHAT INTERFACE
 # ============================================================
 
-# Display Intro Card
-st.markdown(f"""
-<div class="intro-card">
-    <div>{book_data['intro']}</div>
-    <hr style="margin: 10px 0; border-color: rgba(255,255,255,0.1);">
-    <div class="char-name">{selected_name}</div>
-    <div>{char_data['scene_intro']}</div>
-</div>
-""", unsafe_allow_html=True)
+# Display Intro Card using standard Streamlit components
+st.info(book_data['intro'])
+st.markdown(f"### **{selected_name}**")
+st.markdown(f"*{char_data['scene_intro']}*")
+st.markdown("---")
 
 # Set Default Mood
 if st.session_state.current_mood is None:
     st.session_state.current_mood = char_data.get("mood_default", "")
 
-st.markdown(f"<div class='mood-badge'>Current Mood: {st.session_state.current_mood}</div>", unsafe_allow_html=True)
+st.markdown(f"**Current Mood:** {st.session_state.current_mood}")
 
 # AI Initialization
 if st.session_state.chat_session is None or st.session_state.current_char != selected_name or st.session_state.current_loc != selected_location:
@@ -594,7 +456,7 @@ if st.session_state.chat_session is None or st.session_state.current_char != sel
 
 # Socratic Starters
 if not st.session_state.chat_history:
-    st.info("💡 **Not sure what to ask? Try one of these prompts:**")
+    st.markdown("💡 **Not sure what to ask? Try one of these prompts:**")
     col1, col2 = st.columns(2)
     starters = char_data.get("starters", [])
     if len(starters) > 0 and col1.button(starters[0]):
