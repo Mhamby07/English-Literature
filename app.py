@@ -16,7 +16,7 @@ st.set_page_config(
     page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded"
-)
+(ASSETS_DIR = Path(__file__).parent / "assets"):
  
 # ── Asset directory (all images/audio live next to app.py) ──
 ASSETS_DIR = Path(__file__).parent / "assets"
